@@ -20,6 +20,8 @@ import com.fizzed.crux.util.Resources;
 import com.fizzed.crux.util.Size;
 import com.fizzed.crux.util.StopWatch;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -40,6 +42,15 @@ public class ImageProberTest {
         
         log.debug("probed jpeg1 media type in {}", timer);
         
+        assertThat(mediaType, is(KnownMediaType.IMAGE_JPEG));
+    }
+    
+    @Test
+    public void probeMediaTypeJpeg1AsFile() throws IOException {
+        Path file = Paths.get("src/test/resources/fixtures/sample1.jpg");
+
+        KnownMediaType mediaType = ImageProber.probeMediaType(file);
+
         assertThat(mediaType, is(KnownMediaType.IMAGE_JPEG));
     }
     

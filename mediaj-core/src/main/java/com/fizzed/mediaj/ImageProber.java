@@ -20,9 +20,12 @@ import com.fizzed.crux.util.Base16;
 import com.fizzed.crux.util.Size;
 import com.fizzed.mediaj.core.ByteArrayImageInputStream;
 import com.fizzed.mediaj.core.StreamingSVGDocument;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,6 +63,18 @@ public class ImageProber {
         }
         
         try (ByteArrayInputStream input = new ByteArrayInputStream(data)) {
+            return probeMediaType(input);
+        }
+    }
+    
+    static public KnownMediaType probeMediaType(
+            Path file) throws IOException {
+        
+        if (file == null) {
+            return null;
+        }
+        
+        try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file.toFile()))) {
             return probeMediaType(input);
         }
     }
@@ -107,24 +122,33 @@ public class ImageProber {
         return null;
     }
     
-    
-    // https://stackoverflow.com/questions/672916/how-to-get-image-height-and-width-using-java
     static public Size probeSize(
             KnownMediaType mediaType,
             byte[] data) throws IOException {
         
         Objects.requireNonNull(mediaType, "mediaType was null");
         
-        // special handling for svg
-        if (mediaType == KnownMediaType.IMAGE_SVG_XML) {
-            try (InputStream byteInput = new ByteArrayInputStream(data)) {
-                return StreamingSVGDocument.load(byteInput).getSize();
+            // special handling for svg
+            if (mediaType == KnownMediaType.IMAGE_SVG_XML) {
+                try (InputStream byteInput = new ByteArrayInputStream(data)) {
+                    return StreamingSVGDocument.load(byteInput).getSize();
+                }
             }
-        }
+
+            // fallback to ImageIO
+            try (ImageInputStream imageInput = new ByteArrayImageInputStream(data)) {
+                return probeSize(mediaType, imageInput);
+            }
+    }
+    
+    static public Size probeSize(
+            KnownMediaType mediaType,
+            Path file) throws IOException {
         
-        // fallback to ImageIO
-        try (ImageInputStream imageInput = new ByteArrayImageInputStream(data)) {
-            return probeSize(mediaType, imageInput);
+        Objects.requireNonNull(file, "file was null");
+        
+        try (FileInputStream input = new FileInputStream(file.toFile())) {
+            return probeSize(mediaType, input);
         }
     }
     
@@ -143,9 +167,7 @@ public class ImageProber {
             return probeSize(mediaType, imageInput);
         }
     }
-    
-    
-    
+
     static private Size probeSize(
             KnownMediaType mediaType,
             ImageInputStream imageInput) throws IOException {
