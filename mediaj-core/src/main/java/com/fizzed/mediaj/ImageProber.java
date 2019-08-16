@@ -74,6 +74,7 @@ public class ImageProber {
             return null;
         }
         
+        // must wrap it in a buffer to get mark support
         try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file.toFile()))) {
             return probeMediaType(input);
         }

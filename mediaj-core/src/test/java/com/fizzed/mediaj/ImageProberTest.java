@@ -137,6 +137,17 @@ public class ImageProberTest {
     }
     
     @Test
+    public void probeSizeJpeg1AsFile() throws IOException {
+        Path file = Paths.get("src/test/resources/fixtures/sample1.jpg");
+        
+        Size size = ImageProber.probeSize(
+            KnownMediaType.IMAGE_JPEG, file);
+        
+        assertThat(size.getWidth(), is(1000.0d));
+        assertThat(size.getHeight(), is(672.0d));
+    }
+    
+    @Test
     public void probeSizePng1() throws IOException {
         byte[] data = Resources.readAllBytes("/fixtures/sample1.png");
         
