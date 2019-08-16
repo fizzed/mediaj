@@ -21,6 +21,7 @@ import com.fizzed.crux.util.Size;
 import com.fizzed.crux.util.StopWatch;
 import java.io.IOException;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,7 +31,87 @@ public class ImageProberTest {
     static private final Logger log = LoggerFactory.getLogger(ImageProberTest.class);
     
     @Test
-    public void probeDimensionJpeg() throws IOException {
+    public void probeMediaTypeJpeg1() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.jpg");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed jpeg1 media type in {}", timer);
+        
+        assertThat(mediaType, is(KnownMediaType.IMAGE_JPEG));
+    }
+    
+    @Test
+    public void probeMediaTypePng1() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.png");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed png1 media type in {}", timer);
+        
+        assertThat(mediaType, is(KnownMediaType.IMAGE_PNG));
+    }
+    
+    @Test
+    public void probeMediaTypeGif1() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.gif");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed gif1 media type in {}", timer);
+        
+        assertThat(mediaType, is(KnownMediaType.IMAGE_GIF));
+    }
+    
+    @Test
+    public void probeMediaTypeWebp1() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.webp");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed webp1 media type in {}", timer);
+        
+        assertThat(mediaType, is(KnownMediaType.IMAGE_WEBP));
+    }
+    
+    @Test
+    public void probeMediaTypePdf1() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.pdf");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed pdf1 media type in {}", timer);
+        
+        assertThat(mediaType, is(KnownMediaType.APPLICATION_PDF));
+    }
+    
+    @Test
+    public void probeMediaTypeNone() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample1.txt");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        KnownMediaType mediaType = ImageProber.probeMediaType(data);
+        
+        log.debug("probed txt1 media type in {}", timer);
+        
+        assertThat(mediaType, is(nullValue()));
+    }
+    
+    
+    
+    @Test
+    public void probeSizeJpeg1() throws IOException {
         byte[] data = Resources.readAllBytes("/fixtures/sample1.jpg");
         
         StopWatch timer = StopWatch.timeMillis();
@@ -45,7 +126,7 @@ public class ImageProberTest {
     }
     
     @Test
-    public void probeDimensionPng() throws IOException {
+    public void probeSizePng1() throws IOException {
         byte[] data = Resources.readAllBytes("/fixtures/sample1.png");
         
         StopWatch timer = StopWatch.timeMillis();
@@ -60,7 +141,22 @@ public class ImageProberTest {
     }
     
     @Test
-    public void probeDimensionSvg() throws IOException {
+    public void probeSizeJpeg2() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample2.jpg");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        Size size = ImageProber.probeSize(
+            KnownMediaType.IMAGE_JPEG, data);
+        
+        log.debug("probed png 2 size in {}", timer);
+        
+        assertThat(size.getWidth(), is(954.0d));
+        assertThat(size.getHeight(), is(1477.0d));
+    }
+    
+    @Test
+    public void probeSizeSvg1() throws IOException {
         byte[] data = Resources.readAllBytes("/fixtures/sample1.svg");
         
         StopWatch timer = StopWatch.timeMillis();
@@ -75,7 +171,7 @@ public class ImageProberTest {
     }
     
     @Test
-    public void probeDimensionSvgLarge() throws IOException {
+    public void probeSizeSvg2Large() throws IOException {
         byte[] data = Resources.readAllBytes("/fixtures/sample2-large.svg");
         
         StopWatch timer = StopWatch.timeMillis();
