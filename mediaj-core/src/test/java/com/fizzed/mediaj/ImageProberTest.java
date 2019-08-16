@@ -17,7 +17,7 @@ package com.fizzed.mediaj;
 
 import com.fizzed.crux.mediatype.KnownMediaType;
 import com.fizzed.crux.util.Resources;
-import com.fizzed.crux.util.Size;
+import com.fizzed.crux.util.Size2D;
 import com.fizzed.crux.util.StopWatch;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -127,7 +127,7 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_JPEG, data);
         
         log.debug("probed jpeg size in {}", timer);
@@ -140,7 +140,7 @@ public class ImageProberTest {
     public void probeSizeJpeg1AsFile() throws IOException {
         Path file = Paths.get("src/test/resources/fixtures/sample1.jpg");
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_JPEG, file);
         
         assertThat(size.getWidth(), is(1000.0d));
@@ -153,7 +153,7 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_PNG, data);
         
         log.debug("probed png size in {}", timer);
@@ -168,7 +168,7 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_JPEG, data);
         
         log.debug("probed png 2 size in {}", timer);
@@ -183,7 +183,7 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_SVG_XML, data);
         
         log.debug("probed svg size in {}", timer);
@@ -198,7 +198,7 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = ImageProber.probeSize(
+        Size2D size = ImageProber.probeSize(
             KnownMediaType.IMAGE_SVG_XML, data);
         
         log.debug("probed svg (large) size in {}", timer);

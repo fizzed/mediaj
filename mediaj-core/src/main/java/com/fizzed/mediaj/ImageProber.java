@@ -17,7 +17,7 @@ package com.fizzed.mediaj;
 
 import com.fizzed.crux.mediatype.KnownMediaType;
 import com.fizzed.crux.util.Base16;
-import com.fizzed.crux.util.Size;
+import com.fizzed.crux.util.Size2D;
 import com.fizzed.mediaj.core.ByteArrayImageInputStream;
 import com.fizzed.mediaj.core.StreamingSVGDocument;
 import java.io.BufferedInputStream;
@@ -55,6 +55,13 @@ public class ImageProber {
             .orElse(10);
     }
     
+    /**
+     * Probes the byte array to detect what kind of media type it contains.
+     * Only a small subset of files are supported such as PNG, JPEG, PDF, etc.
+     * @param data The byte array
+     * @return The detected media type or null if none detected.
+     * @throws IOException 
+     */
     static public KnownMediaType probeMediaType(
             byte[] data) throws IOException {
         
@@ -67,6 +74,13 @@ public class ImageProber {
         }
     }
     
+    /**
+     * Probes the file to detect what kind of media type it contains.
+     * Only a small subset of files are supported such as PNG, JPEG, PDF, etc.
+     * @param data The file to check
+     * @return The detected media type or null if none detected.
+     * @throws IOException 
+     */
     static public KnownMediaType probeMediaType(
             Path file) throws IOException {
         
@@ -123,7 +137,7 @@ public class ImageProber {
         return null;
     }
     
-    static public Size probeSize(
+    static public Size2D probeSize(
             KnownMediaType mediaType,
             byte[] data) throws IOException {
         
@@ -142,7 +156,7 @@ public class ImageProber {
             }
     }
     
-    static public Size probeSize(
+    static public Size2D probeSize(
             KnownMediaType mediaType,
             Path file) throws IOException {
         
@@ -153,7 +167,7 @@ public class ImageProber {
         }
     }
     
-    static public Size probeSize(
+    static public Size2D probeSize(
             KnownMediaType mediaType,
             InputStream input) throws IOException {
         
@@ -169,7 +183,7 @@ public class ImageProber {
         }
     }
 
-    static private Size probeSize(
+    static private Size2D probeSize(
             KnownMediaType mediaType,
             ImageInputStream imageInput) throws IOException {
         
@@ -183,7 +197,7 @@ public class ImageProber {
                 reader.setInput(imageInput);
                 int width = reader.getWidth(reader.getMinIndex());
                 int height = reader.getHeight(reader.getMinIndex());
-                return new Size(width, height);
+                return new Size2D(width, height);
             } finally {
                 reader.dispose();
             }

@@ -15,7 +15,7 @@
  */
 package com.fizzed.mediaj.core;
 
-import com.fizzed.crux.util.Size;
+import com.fizzed.crux.util.Size2D;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.stream.XMLInputFactory;
@@ -60,7 +60,7 @@ public class StreamingSVGDocument {
         }
     }
     
-    public Size getSize() throws IOException {
+    public Size2D getSize() throws IOException {
         if (!readHeader) {
             this.readHeader();
         }
@@ -88,7 +88,7 @@ public class StreamingSVGDocument {
         }
         
         if (height > 0 && width > 0) {
-            return new Size(width, height);
+            return new Size2D(width, height);
         }
         
         return null;

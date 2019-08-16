@@ -16,7 +16,7 @@
 package com.fizzed.mediaj.core;
 
 import com.fizzed.crux.util.Resources;
-import com.fizzed.crux.util.Size;
+import com.fizzed.crux.util.Size2D;
 import com.fizzed.crux.util.StopWatch;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +44,7 @@ public class StreamingSVGDocumentTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = svg.getSize();
+        Size2D size = svg.getSize();
         
         log.debug("getSize in {}", timer);
         
@@ -60,7 +60,7 @@ public class StreamingSVGDocumentTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Size size = svg.getSize();
+        Size2D size = svg.getSize();
         
         log.debug("getSize in {}", timer);
         
@@ -75,7 +75,7 @@ public class StreamingSVGDocumentTest {
 
         StreamingSVGDocument svg = StreamingSVGDocument.load(input);
         
-        Size size = svg.getSize();
+        Size2D size = svg.getSize();
         
         assertThat(size.getWidth(), is(473.3d));
         assertThat(size.getHeight(), is(394.7d));
