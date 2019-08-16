@@ -33,13 +33,13 @@
             <dependency>
                 <groupId>com.fizzed</groupId>
                 <artifactId>crux-util</artifactId>
-                <version>1.0.12</version>
+                <version>1.0.13-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.fizzed</groupId>
                 <artifactId>crux-mediatype</artifactId>
-                <version>1.0.12</version>
+                <version>1.0.13-SNAPSHOT</version>
             </dependency>
             
             <dependency>

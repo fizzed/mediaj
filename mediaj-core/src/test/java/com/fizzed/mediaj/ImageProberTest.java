@@ -15,14 +15,11 @@
  */
 package com.fizzed.mediaj;
 
-import com.fizzed.mediaj.ImageProber;
 import com.fizzed.crux.mediatype.KnownMediaType;
 import com.fizzed.crux.util.Resources;
+import com.fizzed.crux.util.Size;
 import com.fizzed.crux.util.StopWatch;
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -38,13 +35,13 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Dimension dimension = ImageProber.probeDimension(
+        Size size = ImageProber.probeSize(
             KnownMediaType.IMAGE_JPEG, data);
         
-        log.debug("probed dimension in {}", timer);
+        log.debug("probed jpeg size in {}", timer);
         
-        assertThat(dimension.getWidth(), is(1000.0d));
-        assertThat(dimension.getHeight(), is(672.0d));
+        assertThat(size.getWidth(), is(1000.0d));
+        assertThat(size.getHeight(), is(672.0d));
     }
     
     @Test
@@ -53,13 +50,13 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Dimension dimension = ImageProber.probeDimension(
+        Size size = ImageProber.probeSize(
             KnownMediaType.IMAGE_PNG, data);
         
-        log.debug("probed dimension in {}", timer);
+        log.debug("probed png size in {}", timer);
         
-        assertThat(dimension.getWidth(), is(650.0d));
-        assertThat(dimension.getHeight(), is(341.0d));
+        assertThat(size.getWidth(), is(650.0d));
+        assertThat(size.getHeight(), is(341.0d));
     }
     
     @Test
@@ -68,13 +65,28 @@ public class ImageProberTest {
         
         StopWatch timer = StopWatch.timeMillis();
         
-        Dimension dimension = ImageProber.probeDimension(
+        Size size = ImageProber.probeSize(
             KnownMediaType.IMAGE_SVG_XML, data);
         
-        log.debug("probed dimension in {}", timer);
+        log.debug("probed svg size in {}", timer);
         
-        assertThat(dimension.getWidth(), is(650.0d));
-        assertThat(dimension.getHeight(), is(341.0d));
+        assertThat(size.getWidth(), is(472.0d));
+        assertThat(size.getHeight(), is(392.0d));
+    }
+    
+    @Test
+    public void probeDimensionSvgLarge() throws IOException {
+        byte[] data = Resources.readAllBytes("/fixtures/sample2-large.svg");
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        Size size = ImageProber.probeSize(
+            KnownMediaType.IMAGE_SVG_XML, data);
+        
+        log.debug("probed svg (large) size in {}", timer);
+        
+        assertThat(size.getWidth(), is(2045.0d));
+        assertThat(size.getHeight(), is(1720.0d));
     }
     
 }

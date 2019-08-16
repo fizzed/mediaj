@@ -15,17 +15,12 @@
  */
 package com.fizzed.mediaj.core;
 
-import java.awt.Dimension;
-import java.awt.geom.Rectangle2D;
+import com.fizzed.crux.util.Size;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
@@ -33,16 +28,16 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class StreamingSVGDocument {
 
-    final private XMLEventReader xmlEventReader;
-    private boolean svgElemRead;
-    private Attribute heightAttr;
-    private Attribute widthAttr;
-    private Attribute viewBoxAttr;
+    final private XMLStreamReader streamReader;
+    private boolean readHeader;
+    private String heightAttr;
+    private String widthAttr;
+    private String viewBoxAttr;
     
     private StreamingSVGDocument(
-            XMLEventReader xmlEventReader) {
+            XMLStreamReader streamReader) {
         
-        this.xmlEventReader = xmlEventReader;
+        this.streamReader = streamReader;
     }
     
     static public StreamingSVGDocument load(
@@ -50,35 +45,129 @@ public class StreamingSVGDocument {
 
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         try {
-            XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(input);
+            // these help immensely with speed...
+            xmlInputFactory.setProperty("javax.xml.stream.isValidating", false);
+            xmlInputFactory.setProperty("javax.xml.stream.isNamespaceAware", true);
+            xmlInputFactory.setProperty("javax.xml.stream.isReplacingEntityReferences", false);
+            xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+            xmlInputFactory.setProperty("javax.xml.stream.supportDTD", false);
+
+            XMLStreamReader streamReader = xmlInputFactory.createXMLStreamReader(input, "UTF-8");
             
-            return new StreamingSVGDocument(xmlEventReader);
+            return new StreamingSVGDocument(streamReader);
         } catch (XMLStreamException e) {
             throw new IOException(e);
         }
     }
     
-    public Rectangle2D getSize() throws IOException {
-        if (!svgElemRead) {
-            this.readSvgElem();
+    public Size getSize() throws IOException {
+        if (!readHeader) {
+            this.readHeader();
         }
         
-        // prever height/width vs. viewBox?
+        double width = 0.0f;
+        double height = 0.0f;
+        
+        if (this.heightAttr != null) {
+            height = parseSize(this.heightAttr);
+        }
+        
+        if (this.widthAttr != null) {
+            width = parseSize(this.widthAttr);
+        }
+        
+        if (height <= 0 || width <= 0) {
+            // try viewbox now
+            if (this.viewBoxAttr != null) {
+                double[] values = parseViewBox(this.viewBoxAttr);
+                if (values != null) {
+                    width = values[2] - values[0];  // width - minx
+                    height = values[3] - values[1]; // height - miny
+                }
+            }
+        }
+        
+        if (height > 0 && width > 0) {
+            return new Size(width, height);
+        }
         
         return null;
     }
 
-    private void readSvgElem() throws IOException {
+    /**
+     * The value of the viewBox attribute is a list of four numbers min-x, min-y,
+     * width and height, separated by whitespace and/or a comma, which specify a
+     * rectangle in user space which is mapped to the bounds of the viewport
+     * established for the associated element.
+     */
+    static private double[] parseViewBox(String value) {
+        // e.g. 0 0 0 0
+        if (value == null) {
+            return null;
+        }
+        
+        // space or comma apparently...
+        String[] tokens = value.split("[ ,]+", 4);
+        
+        if (tokens == null || tokens.length != 4) {
+            return null;
+        }
+        
+        double[] values = new double[4];
+        
+        for (int i = 0; i < values.length; i++) {
+            values[i] = parseSize(tokens[i]);
+        }
+        
+        return values;
+    }
+    
+    static private double parseSize(String value) {
+        // e.g. 476 or 576px
+        if (value == null) {
+            return -1;
+        }
+        
+        int posOfUnit = -1;
+        
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (Character.isDigit(c) || c == '-' || c == '.' || c == ' ') {
+                // okay
+            }
+            else {
+                posOfUnit = i;
+                break;
+            }
+        }
+        
+        if (posOfUnit >= 0) {
+            return Double.parseDouble(value.substring(0, posOfUnit).trim());
+        }
+        
+        return Double.parseDouble(value.trim());
+    }
+    
+    private void readHeader() throws IOException {
         try {
-            while (xmlEventReader.hasNext()) {
-                XMLEvent xmlEvent = xmlEventReader.nextEvent();
-                if (xmlEvent.isStartElement()) {
-                    StartElement startElement = xmlEvent.asStartElement();
-                    if (startElement.getName().getLocalPart().equals("svg")) {
-                        this.heightAttr = startElement.getAttributeByName(new QName("height"));
-                        this.widthAttr = startElement.getAttributeByName(new QName("width"));
-                        this.viewBoxAttr = startElement.getAttributeByName(new QName("viewBox"));
-                        this.svgElemRead = true;
+            while (streamReader.hasNext()) {
+                streamReader.next();
+                if (streamReader.isStartElement()) {
+                    if (streamReader.getLocalName().equals("svg")) {
+                        int attrs = streamReader.getAttributeCount();
+                        for (int i = 0; i < attrs; i++) {
+                            String name = streamReader.getAttributeLocalName(i);
+                            if (name.equalsIgnoreCase("height")) {
+                                this.heightAttr = streamReader.getAttributeValue(i);
+                            }
+                            else if (name.equalsIgnoreCase("width")) {
+                                this.widthAttr = streamReader.getAttributeValue(i);
+                            }
+                            else if (name.equalsIgnoreCase("viewBox")) {
+                                this.viewBoxAttr = streamReader.getAttributeValue(i);
+                            }
+                        }
+                        this.readHeader = true;
                         return;
                     }
                 }

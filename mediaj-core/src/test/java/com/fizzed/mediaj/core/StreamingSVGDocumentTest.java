@@ -16,10 +16,15 @@
 package com.fizzed.mediaj.core;
 
 import com.fizzed.crux.util.Resources;
-import java.awt.geom.Rectangle2D;
+import com.fizzed.crux.util.Size;
+import com.fizzed.crux.util.StopWatch;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.input.CountingInputStream;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,20 +36,49 @@ import org.slf4j.LoggerFactory;
 public class StreamingSVGDocumentTest {
     static private final Logger log = LoggerFactory.getLogger(StreamingSVGDocumentTest.class);
     
+    @Test
+    public void getSize() throws IOException {
+        InputStream input = Resources.newInputStream("/fixtures/sample1.svg");
+
+        StreamingSVGDocument svg = StreamingSVGDocument.load(input);
+        
+        StopWatch timer = StopWatch.timeMillis();
+        
+        Size size = svg.getSize();
+        
+        log.debug("getSize in {}", timer);
+        
+        assertThat(size.getWidth(), is(472.0d));
+        assertThat(size.getHeight(), is(392.0d));
+    }
     
     @Test
-    public void load() throws IOException {
-//        InputStream input = Resources.newInputStream("/fixtures/sample1.svg");
+    public void getSizeWidthAndHeightOnly() throws IOException {
         InputStream input = Resources.newInputStream("/fixtures/sample2-large.svg");
-        CountingInputStream countingInput = new CountingInputStream(input);
+
+        StreamingSVGDocument svg = StreamingSVGDocument.load(input);
         
-        log.debug("counting input before: {}", countingInput.getByteCount());
+        StopWatch timer = StopWatch.timeMillis();
         
-        StreamingSVGDocument svg = StreamingSVGDocument.load(countingInput);
+        Size size = svg.getSize();
         
-        Rectangle2D size = svg.getSize();
+        log.debug("getSize in {}", timer);
         
-        log.debug("counting input after: {}", countingInput.getByteCount());
+        assertThat(size, is(not(nullValue())));
+        assertThat(size.getWidth(), is(2045.0d));
+        assertThat(size.getHeight(), is(1720.0d));
+    }
+ 
+    @Test
+    public void getSizeViewBoxOnlyWithNegativeValues() throws IOException {
+        InputStream input = Resources.newInputStream("/fixtures/sample3-no-wh.svg");
+
+        StreamingSVGDocument svg = StreamingSVGDocument.load(input);
+        
+        Size size = svg.getSize();
+        
+        assertThat(size.getWidth(), is(473.3d));
+        assertThat(size.getHeight(), is(394.7d));
     }
     
 }
